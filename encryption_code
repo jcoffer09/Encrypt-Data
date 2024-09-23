@@ -1,0 +1,93 @@
+#
+# Author: Jason Coffer
+#
+# Editor: Mostafa Mohammad
+#
+# Copyright: Jason Coffer
+#
+# Date: 9/11/24
+#
+# Description: This Python program applies a Caesar cipher encryption to secure information, such as student 
+# records and course data. 
+#
+# Functions:
+# encrypt() - shifts each alphabetic character in the input by the user defined key. Handles both uppercase and
+# lowercase letters while leaving digits and special characters unchanged.
+#
+# encrypt_data() - processes multiple lines of data, applying the Caesar cipher to each line. Ensures that all
+# sensitive details are encrypted uniformly.
+#
+# write_encrypted_data() - The encrypted data is saved into separate output files for later use. One file 
+# contains encrypted student data, while another file contains encrypted course details.
+#
+###############################################################################################################
+
+
+def encrypt(text, key):
+    """
+    Encrypts a given text using the Caesar cipher method.
+    Letters are shifted by the specified key, digits are shifted modulo 10,
+    and non-alphabetic characters remain unchanged.
+    """
+    result = ""  # Store the encrypted text
+    for char in text:
+        if char.isalpha():  # Check if the character is a letter (A-Z or a-z)
+            shift = ord('a') if char.islower() else ord('A')  # Determine the ASCII offset based on case (lower or upper)
+            encrypted_char = chr((ord(char) - shift + key) % 26 + shift)  # Apply Caesar cipher shift to letters
+            result += encrypted_char  # Append encrypted letter to result
+        elif char.isdigit():  # Check if the character is a digit (0-9)
+            encrypted_digit = str((int(char) + key) % 10)  # Shift digits by the key, wrap around using modulo 10
+            result += encrypted_digit  # Append encrypted digit to result
+        else:
+            result += char  # Non-alphabetic characters (punctuation, spaces) remain unchanged
+    return result  # Return the fully encrypted string
+
+
+def encrypt_data(input_data, key):
+    """
+    Encrypts a list of strings (data) using the Caesar cipher.
+    Each line of data is encrypted and stored in a list.
+    """
+    encrypted_data = []  # Store all encrypted lines of data
+    for line in input_data:
+        encrypted_line = encrypt(line.strip(), key)  # Encrypt each line after stripping leading/trailing spaces
+        encrypted_data.append(encrypted_line)  # Add encrypted line to the list
+    return encrypted_data  # Return the list of encrypted data
+
+
+def write_encrypted_data(output_file, encrypted_data, title):
+    """
+    Writes the encrypted data to a file, with a title at the top.
+    Each line of encrypted data is written to the output file.
+    """
+    with open(output_file, 'w') as file:  # Open the file in write mode
+        file.write(title + '\n')  # Write the title (e.g., "<Students>" or "<Courses>") to the file
+        for line in encrypted_data:  # Write each encrypted line to the file
+            file.write(line + '\n')
+
+
+# Example usage of the encryption program
+key_input = int(input("Enter a number 1 - 99: ")) # User determines letter and digit shift
+
+encryption_key = key_input  # Encryption key, shifts letters and digits by 5 positions
+input_data = [
+    "Jason Coffer, 950709104, CMPSCI 131",  # Example student data to be encrypted
+    "Mostafa Mohammed, 67890, CMPSCI 131"
+]
+course_data = [
+    "CMPSC 131,Programming and Computation I: Fundamentals", "Abington", "3.00", "003",
+    "Spring 2024", "Woodland Bldg", "343", "This course introduces the fundamental concepts and processes of solving computational problems."
+]  # Example course data to be encrypted
+
+output_file = 'Encrypted_Data.txt'  # File to store encrypted student data
+output_course_file = 'Encrypted_Course_Data.txt'  # File to store encrypted course data
+
+# Encrypt the student and course data
+encrypted_data = encrypt_data(input_data, encryption_key)  # Encrypt the student data
+encrypted_course_data = encrypt_data(course_data, encryption_key)  # Encrypt the course data
+
+# Write the encrypted data to output files
+write_encrypted_data(output_file, encrypted_data, "<Students>")  # Save encrypted student data with the title <Students>
+write_encrypted_data(output_course_file, encrypted_course_data, "<Courses>")  # Save encrypted course data with the title <Courses>
+
+print(f"Encrypted data written to {output_file} and {output_course_file}.")  # Confirmation message
